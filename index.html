@@ -34,6 +34,9 @@ body {
   font-size: 96px;
   flex-grow: 0;
 }
+.timer.overdue {
+  color: red;
+}
 .spacer {
   flex-grow: 1;
 }
@@ -103,6 +106,28 @@ const Player = {
 var currentPlayer = Player.None;
 var start;
 
+function Beep() {
+  const context = new window.AudioContext();
+
+  const oscillator = context.createOscillator();
+  const gain = context.createGain();
+
+  oscillator.connect(gain);
+  gain.connect(context.destination);
+
+  oscillator.type = 'sine'
+  oscillator.frequency.value = 440;
+
+  gain.gain.value = 2;
+
+  const now = context.currentTime;
+  oscillator.start(now)
+  oscillator.stop(now + 0.5)
+}
+
+var timer;
+var lastBeepAt;
+
 function Tick() {
   if (currentPlayer === Player.None) {
     return;
@@ -113,15 +138,21 @@ function Tick() {
   const text = Math.floor(minutes).toString().padStart(2, '0') + ':' + (Math.floor(seconds) % 60).toString().padStart(2, '0');
   for (const node of document.getElementsByClassName('timer')) {
     node.innerText = text;
+    node.classList.toggle('overdue', seconds > 60);
+  }
+
+  if ((Date.now() - lastBeepAt) / 1000 > 60) {
+    Beep();
+    lastBeepAt = Date.now();
   }
 }
-var timer;
 
 function StartPlayer(player) {
   clearInterval(timer);
 
   currentPlayer = player;
   start = Date.now();
+  lastBeepAt = start;
 
   document.body.className = player;
   Tick();
