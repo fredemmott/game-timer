@@ -104,7 +104,7 @@ var currentPlayer = Player.None;
 var start;
 
 function Tick() {
-  if (currentPlayer == Player.None) {
+  if (currentPlayer === Player.None) {
     return;
   }
   const elapsed = Date.now() - start;
@@ -129,11 +129,11 @@ function StartPlayer(player) {
 }
 
 function ButtonClick(thisPlayer, nextPlayer) {
-  if (currentPlayer == Player.None) {
+  if (currentPlayer === Player.None) {
     StartPlayer(thisPlayer);
     return;
   }
-  if (currentPlayer != thisPlayer) {
+  if (currentPlayer !== thisPlayer) {
     return;
   }
   StartPlayer(nextPlayer);
