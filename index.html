@@ -106,8 +106,10 @@ const Player = {
 var currentPlayer = Player.None;
 var start;
 
-function Beep() {
-  const context = new window.AudioContext();
+const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+var context;
+
+function Beep(seconds) {
 
   const oscillator = context.createOscillator();
   const gain = context.createGain();
@@ -122,7 +124,7 @@ function Beep() {
 
   const now = context.currentTime;
   oscillator.start(now)
-  oscillator.stop(now + 0.5)
+  oscillator.stop(now + seconds)
 }
 
 var timer;
@@ -142,12 +144,13 @@ function Tick() {
   }
 
   if ((Date.now() - lastBeepAt) / 1000 > 60) {
-    Beep();
+    Beep(0.5);
     lastBeepAt = Date.now();
   }
 }
 
 function StartPlayer(player) {
+  Beep(0.1);
   clearInterval(timer);
 
   currentPlayer = player;
@@ -160,6 +163,9 @@ function StartPlayer(player) {
 }
 
 function ButtonClick(thisPlayer, nextPlayer) {
+  if (!context) {
+    context = new AudioContextClass();
+  }
   if (currentPlayer === Player.None) {
     StartPlayer(thisPlayer);
     return;
