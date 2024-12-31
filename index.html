@@ -1,0 +1,150 @@
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html;charset=utf-8">
+    <link rel="manifest" href="manifest.json" />
+    <title>Rummikub Timer</title>
+    <style>
+body {
+  font-family: "Segoe UI", -apple-system;
+  background-color: black;
+  color: #ededed;
+  padding: 0;
+  margin: 0;
+  height: 100%;
+}
+#root {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  padding: 10%;
+  margin: 0;
+}
+.button {
+  width: 90%;
+  vertical-align: middle;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 128px;
+  cursor: default;
+  user-select: none;
+}
+.timer {
+  font-size: 96px;
+  flex-grow: 0;
+}
+.spacer {
+  flex-grow: 1;
+}
+.player {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  align-items: center;
+  flex-grow: 0;
+}
+#topPlayer {
+  transform: rotate(0.5turn);
+}
+#pointer {
+  font-size: 256px;
+  flex-grow: 1;
+}
+.startLabel {
+  display: none;
+}
+.noPlayer {
+  .doneLabel {
+    display: none;
+  }
+  .startLabel {
+    display: block;
+  }
+  #pointer {
+    display: none;
+  }
+}
+.bottomPlayer #pointer {
+  transform: rotate(0.5turn);
+}
+.bottomPlayer #topPlayer .button {
+  display: none;
+}
+.topPlayer #bottomPlayer .button {
+  display: none;
+}
+    </style>
+  </head>
+  <body class="noPlayer">
+    <div id="root">
+      <div id="topPlayer" class="player">
+        <div class="timer">00:00</div>
+        <div class="button">
+          <span class="label startLabel">Start</span>
+          <span class="label doneLabel">Done</span>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <div id="pointer">⇧</div>
+      <div class="spacer"></div>
+      <script>
+const topPlayer = document.getElementById('topPlayer');
+const bottomPlayer = topPlayer.cloneNode(true);
+bottomPlayer.id = "bottomPlayer";
+document.getElementById('root').appendChild(bottomPlayer);
+
+const Player = {
+  None: "noPlayer",
+  TopPlayer: "topPlayer",
+  BottomPlayer: "bottomPlayer",
+};
+var currentPlayer = Player.None;
+var start;
+
+function Tick() {
+  if (currentPlayer == Player.None) {
+    return;
+  }
+  const elapsed = Date.now() - start;
+  const seconds = elapsed / 1000;
+  const minutes = seconds / 60;
+  const text = Math.floor(minutes).toString().padStart(2, '0') + ':' + (Math.floor(seconds) % 60).toString().padStart(2, '0');
+  for (const node of document.getElementsByClassName('timer')) {
+    node.innerText = text;
+  }
+}
+var timer;
+
+function StartPlayer(player) {
+  clearInterval(timer);
+
+  currentPlayer = player;
+  start = Date.now();
+
+  document.body.className = player;
+  Tick();
+  setInterval(Tick, 100);
+}
+
+function ButtonClick(thisPlayer, nextPlayer) {
+  if (currentPlayer == Player.None) {
+    StartPlayer(thisPlayer);
+    return;
+  }
+  if (currentPlayer != thisPlayer) {
+    return;
+  }
+  StartPlayer(nextPlayer);
+}
+
+function SetupButton(button, thisPlayer, nextPlayer) {
+  button.addEventListener('click', () => ButtonClick(thisPlayer, nextPlayer));
+}
+SetupButton(topPlayer, Player.TopPlayer, Player.BottomPlayer);
+SetupButton(bottomPlayer, Player.BottomPlayer, Player.TopPlayer);
+      </script>
+    </div>
+  </body>
+</html>
