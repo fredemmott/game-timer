@@ -196,6 +196,9 @@ function Reset() {
   Tick();
   clearInterval(timer);
   timer = null;
+  // Shouldn't be needed, but there's a chance the app will be locked after this, and the previous context gets
+  // in a weird state, e.g. beeps are delayed until the next app switch
+  context = null;
 }
 
 document.getElementById('pointer').addEventListener('click', () => Reset());
